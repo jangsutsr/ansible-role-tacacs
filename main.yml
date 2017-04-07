@@ -1,0 +1,38 @@
+---
+- hosts: all
+  remote_user: ec2-user
+  tasks:
+    - name: Copy nux-misc repo
+      copy:
+        src: files/nux-misc.repo
+        dest: /etc/yum.repos.d/nux-misc.repo
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Install tac_plus
+      yum:
+        name: tac_plus
+        enablerepo: nux-misc
+        state: present
+
+    - name: Copy tacacas config
+      template:
+        src: etc-tac_plus.conf.j2
+        dest: /etc/tac_plus.conf
+        owner: root
+        group: root
+        mode: 0640
+      vars:
+        ascii_password: login
+        pap_password: papme
+
+    - name: Enable tac_plus
+      service:
+        name: tac_plus
+        enabled: yes
+
+    - name: Start tac_plus
+      service:
+        name: tac_plus
+        state: started
